@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kinostore · Аренда реквизита</title>
+
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Сохраняем динамические классы, которые Tailwind иначе выкинет
+    tailwind.config = {
+      safelist: [
+        'bg-gradient-to-r','bg-gradient-to-b','bg-gradient-to-br',
+        'from-neutral-950','to-neutral-900',
+        'from-black/10','to-black/60',
+        'bg-white/5','bg-white/10','bg-black/30',
+        'border-white/10','border-white/15',
+        'text-white/60','text-white/70','bg-white','text-black',
+        // Цвета категорий
+        'from-pink-500','to-orange-500',
+        'from-rose-500','to-fuchsia-500',
+        'from-purple-500','to-indigo-500',
+        'from-cyan-500','to-emerald-500',
+        'from-sky-500','to-blue-600',
+        'from-amber-500','to-red-500',
+        'from-lime-500','to-emerald-500',
+        'from-yellow-500','to-orange-600',
+        'from-green-500','to-teal-500',
+        'from-indigo-500','to-violet-600',
+        // Градиенты UI
+        'from-amber-300','via-rose-400','to-fuchsia-400',
+        'from-indigo-400','to-violet-600',
+        'from-violet-400','to-fuchsia-600',
+        'from-sky-400','to-blue-600',
+        'from-emerald-400','to-lime-500',
+        'from-fuchsia-400','to-amber-300'
+      ]
+    }
+  </script>
+  <style>
+    .toast { position: fixed; top: 16px; right: 16px; z-index: 9999; }
+    .shadow-deep { box-shadow: 0 20px 40px rgba(0,0,0,.35); }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-neutral-950 to-neutral-900 text-white">
+  <div id="toast" class="toast"></div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 backdrop-blur bg-black/50 border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+      <span class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-rose-400 to-fuchsia-400">Kinostore</span>
+      <span class="hidden sm:inline text-sm text-white/60">Аренда реквизита для съёмок — Москва и МО</span>
+      <div class="ml-auto flex items-center gap-2">
+        <button id="btn-add" class="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-lime-500 text-black font-semibold hover:brightness-110">Добавить объявление</button>
+        <a id="a-tg" href="https://t.me/mrdinar" target="_blank" class="px-3 py-2 rounded-xl bg-gradient-to-r from-violet-400 to-fuchsia-600 font-semibold hover:brightness-110">Написать в Telegram</a>
+        <a id="a-wa" href="#" target="_blank" class="px-3 py-2 rounded-xl bg-gradient-to-r from-sky-400 to-blue-600 font-semibold hover:brightness-110">Заявка в WhatsApp</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Search & filters -->
+  <section class="max-w-7xl mx-auto px-4 py-6">
+    <div class="rounded-2xl p-4 bg-white/5 ring-1 ring-white/10">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input id="inp-search" placeholder="Поиск по названию, метро, району…" class="flex-1 rounded-xl bg-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-fuchsia-400" />
+        <div class="flex gap-2">
+          <input id="date-from" type="date" class="rounded-xl bg-white/10 px-3 py-3" />
+          <input id="date-to" type="date" class="rounded-xl bg-white/10 px-3 py-3" />
+        </div>
+      </div>
+      <div id="cats" class="mt-4 flex flex-wrap gap-2"></div>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-4 -mt-2 pb-2">
+    <button id="btn-metro" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-400 to-violet-600 font-semibold hover:brightness-110">🗺️ Карта метро</button>
+  </section>
+
+  <!-- Grid -->
+  <main class="max-w-7xl mx-auto px-4 pb-28">
+    <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </main>
+
+  <!-- Cart -->
+  <aside class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[min(96vw,980px)] z-40">
+    <div class="rounded-2xl bg-white/10 backdrop-blur border border-white/15 shadow-deep">
+      <div class="px-4 py-3 flex flex-wrap items-center gap-3">
+        <span class="font-semibold">Выбрано: <span id="cart-count">0</span></span>
+        <div id="cart-strip" class="flex-1 overflow-x-auto flex gap-3 py-1"></div>
+        <div class="ml-auto font-bold">Итого: <span id="cart-total">0 ₽</span></div>
+        <a href="https://t.me/mrdinar" target="_blank" class="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-400 to-fuchsia-600 font-semibold hover:brightness-110">Написать в Telegram</a>
+        <a id="a-wa-bottom" href="#" target="_blank" class="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-400 to-blue-600 font-semibold hover:brightness-110">Отправить в WhatsApp</a>
+        <button id="btn-checkout" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-lime-500 text-black font-semibold hover:brightness-110">Оплатить онлайн</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- How it works -->
+  <section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="rounded-2xl p-6 bg-gradient-to-br from-white/10 to-white/5 border border-white/10"><div class="text-3xl mb-2">🔎</div><div class="font-semibold text-lg">Выберите</div><div class="text-white/70">Найдите нужные позиции по категории, метро или району.</div></div>
+      <div class="rounded-2xl p-6 bg-gradient-to-br from-white/10 to-white/5 border border-white/10"><div class="text-3xl mb-2">📅</div><div class="font-semibold text-lg">Укажите даты</div><div class="text-white/70">Выберите период аренды: день, неделя или месяц.</div></div>
+      <div class="rounded-2xl p-6 bg-gradient-to-br from-white/10 to-white/5 border border-white/10"><div class="text-3xl mb-2">📨</div><div class="font-semibold text-lg">Отправьте заявку</div><div class="text-white/70">Заявка формируется автоматически и уходит в WhatsApp/Telegram.</div></div>
+    </div>
+    <p class="mt-6 text-white/60 text-sm">Демо‑проект. Цены ориентировочные; доступность уточняйте у владельцев. Добавление объявлений сохраняется в браузере (localStorage).</p>
+  </section>
+
+  <!-- Modal root -->
+  <div id="modal-root"></div>
+
+  <script>
+    // ======= Data & helpers =======
+    const CATEGORIES = [
+      { key: 'furniture', name: 'Мебель и интерьер', emoji: '🛋️', color: 'from-pink-500 to-orange-500' },
+      { key: 'decor', name: 'Декор и аксессуары', emoji: '🎀', color: 'from-rose-500 to-fuchsia-500' },
+      { key: 'costumes', name: 'Костюмы и одежда', emoji: '👗', color: 'from-purple-500 to-indigo-500' },
+      { key: 'props', name: 'Реквизит спец.', emoji: '🎬', color: 'from-cyan-500 to-emerald-500' },
+      { key: 'tech', name: 'Техника и электроника', emoji: '📸', color: 'from-sky-500 to-blue-600' },
+      { key: 'locations', name: 'Локации и площадки', emoji: '📍', color: 'from-amber-500 to-red-500' },
+      { key: 'transport', name: 'Транспорт', emoji: '🚗', color: 'from-lime-500 to-emerald-500' },
+      { key: 'catering', name: 'Кейтеринг', emoji: '🍽️', color: 'from-yellow-500 to-orange-600' },
+      { key: 'animals', name: 'Животные', emoji: '🐾', color: 'from-green-500 to-teal-500' },
+      { key: 'lighting', name: 'Световое оборудование', emoji: '💡', color: 'from-indigo-500 to-violet-600' },
+    ];
+
+    function rub(n){ return new Intl.NumberFormat('ru-RU').format(n) + ' ₽' }
+    function daysBetween(a,b){ return Math.max(1, Math.ceil((new Date(b) - new Date(a)) / (1000*60*60*24))) }
+
+    const SAMPLE = [
+      {id:'f1',cat:'furniture',title:'Кресло из 60-х',metro:'Таганская',area:'Моск. центр',priceDay:2500,priceWeek:14000,priceMonth:48000,img:'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1200&auto=format&fit=crop'},
+      {id:'f2',cat:'furniture',title:'Диван бархатный',metro:'Савёловская',area:'САО',priceDay:3200,priceWeek:17500,priceMonth:60000,img:'https://images.unsplash.com/photo-1549187774-b4e9b0445b41?q=80&w=1200&auto=format&fit=crop'},
+      {id:'f3',cat:'furniture',title:'Стол лофт 180×90',metro:'Бауманская',area:'ЦАО',priceDay:1800,priceWeek:9800,priceMonth:34000,img:'https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop'},
+      {id:'d1',cat:'decor',title:'Напольная ваза',metro:'Павелецкая',area:'ЦАО',priceDay:700,priceWeek:3600,priceMonth:12000,img:'https://images.unsplash.com/photo-1600460351480-8b2f0b4a9f63?q=80&w=1200&auto=format&fit=crop'},
+      {id:'d2',cat:'decor',title:'Картина «Абстракция»',metro:'Фрунзенская',area:'ЦАО',priceDay:1500,priceWeek:7800,priceMonth:26000,img:'https://images.unsplash.com/photo-1513364776144-60967b0f800f?q=80&w=1200&auto=format&fit=crop'},
+      {id:'d3',cat:'decor',title:'Гирлянда ретро',metro:'Калужская',area:'ЮЗАО',priceDay:600,priceWeek:3000,priceMonth:9000,img:'https://images.unsplash.com/photo-1478147427282-58a87a120781?q=80&w=1200&auto=format&fit=crop'},
+      {id:'c1',cat:'costumes',title:'Платье 20-х',metro:'Маяковская',area:'ЦАО',priceDay:2200,priceWeek:12000,priceMonth:40000,img:'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=1200&auto=format&fit=crop'},
+      {id:'c2',cat:'costumes',title:'Костюм полицейского (ретро)',metro:'Сокол',area:'САО',priceDay:1900,priceWeek:10500,priceMonth:35000,img:'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1200&auto=format&fit=crop'},
+      {id:'c3',cat:'costumes',title:'Бронежилет (муляж)',metro:'Печатники',area:'ЮВАО',priceDay:1200,priceWeek:6500,priceMonth:22000,img:'https://images.unsplash.com/photo-1593614209215-1b92b1739f19?q=80&w=1200&auto=format&fit=crop'},
+      {id:'p1',cat:'props',title:'Медицинский чемодан',metro:'Коломенская',area:'ЮАО',priceDay:900,priceWeek:4800,priceMonth:16000,img:'https://images.unsplash.com/photo-1584982751601-97dcc096659c?q=80&w=1200&auto=format&fit=crop'},
+      {id:'p2',cat:'props',title:'Саксофон (муляж)',metro:'Кузьминки',area:'ЮВАО',priceDay:1400,priceWeek:7600,priceMonth:25000,img:'https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?q=80&w=1200&auto=format&fit=crop'},
+      {id:'p3',cat:'props',title:'Винтажная кинокамера',metro:'Белорусская',area:'ЦАО',priceDay:2400,priceWeek:13000,priceMonth:42000,img:'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?q=80&w=1200&auto=format&fit=crop'},
+      {id:'t1',cat:'tech',title:'Телевизор ЭЛТ',metro:'ВДНХ',area:'СВАО',priceDay:1600,priceWeek:8800,priceMonth:30000,img:'https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a?q=80&w=1200&auto=format&fit=crop'},
+      {id:'t2',cat:'tech',title:'Кассовый аппарат ретро',metro:'Китай-город',area:'ЦАО',priceDay:1300,priceWeek:7000,priceMonth:23000,img:'https://images.unsplash.com/photo-1526308182278-10f98dea4d2a?q=80&w=1200&auto=format&fit=crop'},
+      {id:'t3',cat:'tech',title:'Ноутбук ультрабук',metro:'Комсомольская',area:'ЦАО',priceDay:2000,priceWeek:11000,priceMonth:36000,img:'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200&auto=format&fit=crop'},
+      {id:'l1',cat:'locations',title:'Студийная гостиная',metro:'Динамо',area:'САО',priceDay:18000,priceWeek:98000,priceMonth:320000,img:'https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop'},
+      {id:'l2',cat:'locations',title:'Кафе-уголок',metro:'Арбатская',area:'ЦАО',priceDay:22000,priceWeek:120000,priceMonth:390000,img:'https://images.unsplash.com/photo-1498654200943-1088dd4438ae?q=80&w=1200&auto=format&fit=crop'},
+      {id:'l3',cat:'locations',title:'Студия с циклорамой',metro:'Текстильщики',area:'ЮВАО',priceDay:25000,priceWeek:140000,priceMonth:450000,img:'https://images.unsplash.com/photo-1526312426976-593c2a270bd5?q=80&w=1200&auto=format&fit=crop'},
+      {id:'tr1',cat:'transport',title:'Лада 2106 (беж)',metro:'Кунцевская',area:'ЗАО',priceDay:12000,priceWeek:65000,priceMonth:210000,img:'https://images.unsplash.com/photo-1609669347085-017076bf20c6?q=80&w=1200&auto=format&fit=crop'},
+      {id:'tr2',cat:'transport',title:'Скутер ретро',metro:'Новокузнецкая',area:'ЦАО',priceDay:3500,priceWeek:19000,priceMonth:60000,img:'https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=1200&auto=format&fit=crop'},
+      {id:'tr3',cat:'transport',title:'Велосипед шоссейный',metro:'Беговая',area:'САО',priceDay:2000,priceWeek:11000,priceMonth:36000,img:'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1200&auto=format&fit=crop'},
+      {id:'k1',cat:'catering',title:'Кофемашина эспрессо',metro:'Сухаревская',area:'ЦАО',priceDay:2800,priceWeek:15000,priceMonth:50000,img:'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?q=80&w=1200&auto=format&fit=crop'},
+      {id:'k2',cat:'catering',title:'Стол сервировочный',metro:'Технопарк',area:'ЮАО',priceDay:900,priceWeek:4800,priceMonth:16000,img:'https://images.unsplash.com/photo-1467348733814-f93fc480bec6?q=80&w=1200&auto=format&fit=crop'},
+      {id:'k3',cat:'catering',title:'Меню-доска меловая',metro:'Тверская',area:'ЦАО',priceDay:600,priceWeek:3200,priceMonth:10000,img:'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?q=80&w=1200&auto=format&fit=crop'},
+      {id:'a1',cat:'animals',title:'Хаски обученный (с хендлером)',metro:'Щёлковская',area:'ВАО',priceDay:15000,priceWeek:80000,priceMonth:260000,img:'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1200&auto=format&fit=crop'},
+      {id:'a2',cat:'animals',title:'Кошка-модель (с хендлером)',metro:'Измайлово',area:'ВАО',priceDay:9000,priceWeek:48000,priceMonth:160000,img:'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?q=80&w=1200&auto=format&fit=crop'},
+      {id:'a3',cat:'animals',title:'Попугай ара (с хендлером)',metro:'Речной вокзал',area:'САО',priceDay:12000,priceWeek:65000,priceMonth:210000,img:'https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=1200&auto=format&fit=crop'},
+      {id:'s1',cat:'lighting',title:'LED-панель 1×1',metro:'Охотный ряд',area:'ЦАО',priceDay:1600,priceWeek:8800,priceMonth:30000,img:'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?q=80&w=1200&auto=format&fit=crop'},
+      {id:'s2',cat:'lighting',title:'Софтбокс 60×90 + стойка',metro:'Нагатинская',area:'ЮАО',priceDay:1200,priceWeek:6500,priceMonth:22000,img:'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1200&auto=format&fit=crop'},
+      {id:'s3',cat:'lighting',title:'Журавль + штанга',metro:'Киевская',area:'ЗАО',priceDay:1900,priceWeek:10500,priceMonth:35000,img:'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?q=80&w=1200&auto=format&fit=crop'}
+    ];
+
+    const LS_KEY = 'kinostore:listings:v1';
+
+    const state = {
+      q: '', cat: 'all', from: '', to: '',
+      selected: {}, // id -> { term: 'day'|'week'|'month' }
+      listings: []
+    };
+
+    // ======= Boot =======
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const extra = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+        state.listings = Array.isArray(extra) ? [...SAMPLE, ...extra] : [...SAMPLE];
+      } catch { state.listings = [...SAMPLE]; }
+
+      bindControls();
+      renderCategories();
+      renderAll();
+      checkHashToast();
+      window.addEventListener('hashchange', checkHashToast);
+      selfTests();
+    });
+
+    // ======= Rendering =======
+    function renderCategories(){
+      const wrap = document.getElementById('cats');
+      const parts = [
+        `<button data-cat="all" class="px-3 py-1.5 rounded-full text-sm border ${state.cat==='all'?'bg-white text-black border-transparent':'border-white/20 hover:bg-white/10'}">Все</button>`
+      ];
+      for(const c of CATEGORIES){
+        const active = state.cat===c.key;
+        const cls = active ? `text-black border-transparent bg-gradient-to-r ${c.color}` : 'border-white/20 hover:bg-white/10';
+        parts.push(`<button data-cat="${c.key}" class="px-3 py-1.5 rounded-full text-sm border transition ${cls}">${c.emoji} ${c.name}</button>`);
+      }
+      wrap.innerHTML = parts.join('');
+    }
+
+    function getFiltered(){
+      const q = state.q.trim().toLowerCase();
+      return state.listings.filter(it => {
+        const okCat = state.cat==='all' || it.cat===state.cat;
+        const text = (it.title+" "+it.metro+" "+it.area).toLowerCase();
+        const okQ = !q || text.includes(q);
+        return okCat && okQ;
+      });
+    }
+
+    function renderGrid(){
+      const grid = document.getElementById('grid');
+      const items = getFiltered();
+      grid.innerHTML = items.map(it => cardHTML(it)).join('');
+    }
+
+    function cardHTML(it){
+      const catMeta = CATEGORIES.find(c=>c.key===it.cat);
+      const selected = !!state.selected[it.id];
+      return `
+        <div class="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5">
+          <div class="absolute inset-0 bg-gradient-to-b from-black/10 to-black/60 opacity-0 group-hover:opacity-100 transition"></div>
+          <img src="${it.img}" alt="${escapeHtml(it.title)}" class="h-56 w-full object-cover"/>
+          <div class="p-4 space-y-3">
+            <div class="flex items-center gap-2 text-xs">
+              <span class="px-2 py-1 rounded-full font-semibold text-black bg-gradient-to-r ${catMeta?.color||''}">${catMeta?.emoji||''} ${catMeta?.name||''}</span>
+              <span class="px-2 py-1 rounded-full bg-white/10">🚇 ${it.metro}</span>
+              <span class="px-2 py-1 rounded-full bg-white/10">📍 ${it.area}</span>
+            </div>
+            <h3 class="text-lg font-bold leading-tight">${escapeHtml(it.title)}</h3>
+            <div class="flex items-end gap-4">
+              ${priceHTML('день', it.priceDay)}
+              ${priceHTML('неделя', it.priceWeek)}
+              ${priceHTML('месяц', it.priceMonth)}
+            </div>
+            <div class="flex items-center gap-2">
+              <button data-action="toggle" data-id="${it.id}" class="px-3 py-2 rounded-xl font-semibold ${selected?'bg-white text-black':'bg-gradient-to-r from-fuchsia-400 to-amber-300 text-black'}">${selected?'Убрать':'Выбрать'}</button>
+              ${selected ? `
+                <select data-action="term" data-id="${it.id}" class="rounded-xl bg-white/10 px-2 py-2">
+                  <option value="day" ${getTerm(it.id)==='day'?'selected':''}>день</option>
+                  <option value="week" ${getTerm(it.id)==='week'?'selected':''}>неделя</option>
+                  <option value="month" ${getTerm(it.id)==='month'?'selected':''}>месяц</option>
+                </select>` : ''}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function priceHTML(label, value){
+      return `<div class="text-sm"><div class="text-white/60">${label}</div><div class="font-bold">${rub(value)}</div></div>`
+    }
+
+    function renderCart(){
+      const strip = document.getElementById('cart-strip');
+      const ids = Object.keys(state.selected);
+      const items = ids.map(id => state.listings.find(x=>x.id===id)).filter(Boolean);
+      strip.innerHTML = items.map(it => `
+        <div class="flex items-center gap-2 bg-black/30 rounded-xl px-2 py-1">
+          <img src="${it.img}" class="w-10 h-10 object-cover rounded-lg"/>
+          <span class="text-sm whitespace-nowrap">${escapeHtml(it.title)}</span>
+          <select data-action="term" data-id="${it.id}" class="text-sm bg-white/10 rounded-lg px-2 py-1 outline-none">
+            <option value="day" ${getTerm(it.id)==='day'?'selected':''}>день</option>
+            <option value="week" ${getTerm(it.id)==='week'?'selected':''}>неделя</option>
+            <option value="month" ${getTerm(it.id)==='month'?'selected':''}>месяц</option>
+          </select>
+          <button data-action="remove" data-id="${it.id}" class="text-white/60 hover:text-white">✕</button>
+        </div>`).join('');
+      document.getElementById('cart-count').textContent = items.length;
+      document.getElementById('cart-total').textContent = rub(calcTotal(items));
+      updateShareLinks(items);
+    }
+
+    function calcTotal(items){
+      const d = state.from && state.to ? daysBetween(state.from, state.to) : 1;
+      return items.reduce((sum, it)=>{
+        const term = getTerm(it.id);
+        if(term==='day') return sum + it.priceDay * d;
+        if(term==='week') return sum + it.priceWeek * Math.ceil(d/7);
+        return sum + it.priceMonth * Math.ceil(d/30);
+      }, 0);
+    }
+
+    function renderAll(){
+      renderGrid();
+      renderCart();
+    }
+
+    function getTerm(id){ return (state.selected[id]?.term) || 'day'; }
+
+    // ======= Events & controls =======
+    function bindControls(){
+      document.getElementById('inp-search').addEventListener('input', (e)=>{ state.q=e.target.value; renderAll(); });
+      document.getElementById('date-from').addEventListener('change', e=>{ state.from=e.target.value; renderCart(); });
+      document.getElementById('date-to').addEventListener('change', e=>{ state.to=e.target.value; renderCart(); });
+
+      document.getElementById('cats').addEventListener('click', (e)=>{
+        const btn = e.target.closest('button[data-cat]');
+        if(!btn) return; state.cat = btn.dataset.cat; renderCategories(); renderGrid();
+      });
+
+      document.getElementById('grid').addEventListener('click', onGridClick);
+      document.getElementById('grid').addEventListener('change', onTermChange);
+      document.getElementById('cart-strip').addEventListener('click', onCartClick);
+      document.getElementById('cart-strip').addEventListener('change', onTermChange);
+
+      document.getElementById('btn-metro').addEventListener('click', openMetroModal);
+      document.getElementById('btn-add').addEventListener('click', openCreateModal);
+      document.getElementById('btn-checkout').addEventListener('click', openCheckoutModal);
+    }
+
+    function onGridClick(e){
+      const t = e.target.closest('[data-action]'); if(!t) return;
+      const id = t.dataset.id; const act = t.dataset.action;
+      if(act==='toggle'){
+        state.selected[id] = state.selected[id] ? undefined : {term:'day'};
+        if(state.selected[id]===undefined) delete state.selected[id];
+        renderAll();
+      }
+    }
+    function onCartClick(e){
+      const t = e.target.closest('[data-action]'); if(!t) return;
+      const id = t.dataset.id; const act = t.dataset.action;
+      if(act==='remove'){ delete state.selected[id]; renderAll(); }
+    }
+    function onTermChange(e){
+      const t = e.target; if(t.matches('[data-action="term"]')){
+        const id = t.dataset.id; state.selected[id] = { term: t.value }; renderCart();
+      }
+    }
+
+    // ======= Modals =======
+    function openMetroModal(){
+      const LINES = [
+        { key:'red',   name:'Сокольническая', color:'bg-red-500',    stations:['Бульвар Рокоссовского','Черкизовская','Преображенская площадь','Красносельская','Комсомольская','Красные Ворота','Чистые пруды','Лубянка','Охотный ряд','Библиотека им. Ленина','Парк культуры'] },
+        { key:'green', name:'Замоскворецкая',  color:'bg-green-500',  stations:['Ховрино','Беломорская','Речной вокзал','Водный стадион','Войковская','Сокол','Аэропорт','Динамо','Белорусская','Маяковская','Тверская','Театральная','Новокузнецкая','Павелецкая'] },
+        { key:'brown', name:'Кольцевая',       color:'bg-amber-700',  stations:['Парк культуры','Октябрьская','Добрынинская','Павелецкая','Таганская','Курская','Комсомольская','Проспект Мира','Новослободская','Белорусская','Краснопресненская','Киевская'] },
+      ];
+      let active = 'red';
+      const root = document.getElementById('modal-root');
+      root.innerHTML = modalShell(`
+        <div class="w-[min(96vw,980px)] h-[min(90vh,720px)] rounded-3xl bg-neutral-900 border border-white/10 overflow-hidden grid md:grid-cols-3">
+          <div class="md:col-span-1 border-r border-white/10 p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="font-bold">Схема метро</div>
+              <button data-x class="text-white/70 hover:text-white">✕</button>
+            </div>
+            <div class="space-y-2" id="metro-lines"></div>
+          </div>
+          <div class="md:col-span-2 flex flex-col">
+            <div class="p-4 border-b border-white/10 text-white/70">Выберите станцию — мы подставим её в поиск.</div>
+            <div class="flex-1 overflow-auto p-4 grid sm:grid-cols-2 gap-2" id="metro-stations"></div>
+            <div class="p-4 border-t border-white/10 flex items-center gap-2">
+              <input id="metro-input" placeholder="Или введите станцию…" class="flex-1 rounded-xl bg-white/10 px-3 py-2 outline-none focus:ring-2 focus:ring-fuchsia-400"/>
+              <a href="https://mosmetro.ru/map/" target="_blank" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15">Открыть карту</a>
+            </div>
+          </div>
+        </div>`);
+
+      function paint(){
+        const lines = document.getElementById('metro-lines');
+        lines.innerHTML = LINES.map(l=>`<button data-line="${l.key}" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl ${active===l.key?'bg-white/15':'bg-white/5 hover:bg-white/10'}"><span class="inline-block w-3 h-3 rounded-full ${l.color}"></span><span class="text-left flex-1">${l.name}</span></button>`).join('');
+        const cur = LINES.find(l=>l.key===active);
+        document.getElementById('metro-stations').innerHTML = cur.stations.map(st=>`<button data-st="${st}" class="text-left px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15">${st}</button>`).join('');
+      }
+      paint();
+
+      root.addEventListener('click', onClick);
+      function onClick(e){
+        if(e.target.matches('[data-x]') || e.target.closest('[data-overlay]')){ close(); return; }
+        const line = e.target.closest('[data-line]'); if(line){ active=line.dataset.line; paint(); return; }
+        const st = e.target.closest('[data-st]');   if(st){ state.q=st.dataset.st; document.getElementById('inp-search').value=state.q; renderAll(); close(); }
+      }
+      document.getElementById('metro-input').addEventListener('keydown', (e)=>{ if(e.key==='Enter' && e.target.value){ state.q=e.target.value; document.getElementById('inp-search').value=state.q; renderAll(); close(); }});
+
+      function close(){ root.innerHTML=''; root.removeEventListener('click', onClick); }
+    }
+
+    function openCreateModal(){
+      const id = 'u'+Date.now();
+      const root = document.getElementById('modal-root');
+      root.innerHTML = modalShell(`
+        <div class="w-[min(96vw,680px)] rounded-3xl bg-neutral-900 border border-white/10 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold">Добавить объявление</h3>
+            <button data-x class="text-white/70 hover:text-white">✕</button>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-3">
+            ${inputField('Название','title')}
+            ${selectField('Категория','cat', CATEGORIES.map(c=>({value:c.key,label:c.name})))}
+            ${inputField('Ссылка на фото','img')}
+            ${inputField('Метро','metro')}
+            ${inputField('Район','area')}
+            ${numberField('Цена/день','priceDay')}
+            ${numberField('Цена/неделя','priceWeek')}
+            ${numberField('Цена/месяц','priceMonth')}
+          </div>
+          <div class="mt-4 flex gap-2 justify-end">
+            <button data-x class="px-4 py-2 rounded-xl bg-white/10">Отмена</button>
+            <button id="btn-save-item" class="px-4 py-2 rounded-xl font-semibold bg-gradient-to-r from-emerald-400 to-lime-500 text-black">Сохранить</button>
+          </div>
+        </div>`);
+
+      document.getElementById('btn-save-item').addEventListener('click', ()=>{
+        const v = (name)=> document.querySelector(`[name="${name}"]`).value.trim();
+        const item = { id, title: v('title'), img: v('img'), metro: v('metro'), area: v('area'), cat: v('cat')||'furniture', priceDay: +v('priceDay')||0, priceWeek: +v('priceWeek')||0, priceMonth: +v('priceMonth')||0 };
+        if(!item.title || !item.img || !item.priceDay){ showToast('Заполните минимум: название, фото, цену/день', false); return; }
+        const extras = JSON.parse(localStorage.getItem(LS_KEY)||'[]'); extras.push(item); localStorage.setItem(LS_KEY, JSON.stringify(extras));
+        state.listings.push(item); renderAll(); close();
+      });
+
+      root.addEventListener('click', (e)=>{ if(e.target.matches('[data-x]') || e.target.closest('[data-overlay]')) close(); });
+      function close(){ root.innerHTML=''; }
+    }
+
+    function openCheckoutModal(){
+      const items = Object.keys(state.selected).map(id=> state.listings.find(i=>i.id===id)).filter(Boolean);
+      const total = calcTotal(items);
+      const root = document.getElementById('modal-root');
+      root.innerHTML = modalShell(`
+        <div class="w-[min(96vw,720px)] rounded-3xl bg-neutral-900 border border-white/10 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold">Оплата заказа</h3>
+            <button data-x class="text-white/70 hover:text-white">✕</button>
+          </div>
+          <div class="space-y-3">
+            <div class="text-sm text-white/70">Позиции (${items.length}): ${items.map(i=>escapeHtml(i.title)).join(', ')}</div>
+            <div class="font-semibold">Сумма к оплате: ${rub(total)}</div>
+            <div class="grid sm:grid-cols-2 gap-3">
+              ${inputField('Имя','name')}
+              ${inputField('Телефон','phone')}
+              ${inputField('Email (квитанция)','email')}
+              ${selectField('Провайдер оплаты','provider', [{value:'tinkoff',label:'Тинькофф'},{value:'yookassa',label:'ЮKassa'},{value:'stripe',label:'Stripe'}])}
+            </div>
+            <div class="text-sm text-white/60">Демо-режим: откроется страница с кнопками «успех/ошибка», результат вернётся якорем.</div>
+            <div class="flex justify-end gap-2">
+              <button data-x class="px-4 py-2 rounded-xl bg-white/10">Отмена</button>
+              <button id="btn-pay" class="px-4 py-2 rounded-xl font-semibold bg-gradient-to-r from-emerald-400 to-lime-500 text-black">Оплатить</button>
+            </div>
+          </div>
+        </div>`);
+
+      document.getElementById('btn-pay').addEventListener('click', ()=>{
+        const v = (n)=> document.querySelector(`[name="${n}"]`).value.trim();
+        const customer = {name:v('name'), phone:v('phone'), email:v('email')};
+        const provider = v('provider')||'tinkoff';
+        const payload = buildPaymentPayload({ provider, items, total, customer, redirectUrl: location.pathname + '#payment-success' });
+        createInvoice(payload).then(url=>{ location.href = url; });
+      });
+
+      root.addEventListener('click', (e)=>{ if(e.target.matches('[data-x]') || e.target.closest('[data-overlay]')) close(); });
+      function close(){ root.innerHTML=''; }
+    }
+
+    function modalShell(inner){
+      return `<div data-overlay class="fixed inset-0 bg-black/70 backdrop-blur z-50 flex items-center justify-center p-4">${inner}</div>`;
+    }
+
+    function inputField(label,name){
+      return `<label class="space-y-1"><div class="text-sm text-white/70">${label}</div><input name="${name}" class="w-full rounded-xl bg-white/10 px-3 py-2 outline-none focus:ring-2 focus:ring-fuchsia-400"/></label>`;
+    }
+    function numberField(label,name){
+      return `<label class="space-y-1"><div class="text-sm text-white/70">${label}</div><input type="number" name="${name}" class="w-full rounded-xl bg-white/10 px-3 py-2 outline-none focus:ring-2 focus:ring-fuchsia-400"/></label>`;
+    }
+    function selectField(label,name,options){
+      return `<label class="space-y-1"><div class="text-sm text-white/70">${label}</div><select name="${name}" class="w-full rounded-xl bg-white/10 px-3 py-2 outline-none">${options.map(o=>`<option value="${o.value}">${o.label}</option>`).join('')}</select></label>`;
+    }
+
+    // ======= Share/Toast/Payment stubs =======
+    function updateShareLinks(items){
+      const s = [
+        'Заявка с Kinostore (демо):',
+        state.from && state.to ? `Даты: ${state.from} — ${state.to}` : 'Дата: один день',
+        ...items.map(it=>`• ${it.title} — ${getTerm(it.id)}`),
+        `Итого ориентировочно: ${rub(calcTotal(items))}`,
+      ].join('\n');
+      const wa = `https://wa.me/?text=${encodeURIComponent(s)}`;
+      document.getElementById('a-wa').href = wa;
+      document.getElementById('a-wa-bottom').href = wa;
+    }
+
+    function showToast(msg, ok=true){
+      const el = document.getElementById('toast');
+      el.innerHTML = `<div class="${ok?'bg-emerald-500 text-black':'bg-white/10 text-white'} rounded-xl px-4 py-2 shadow-deep">${msg}</div>`;
+      setTimeout(()=> el.innerHTML='', 3000);
+    }
+
+    function checkHashToast(){
+      if(location.hash==='#payment-success') showToast('Оплата (демо): успех', true);
+      if(location.hash==='#payment-fail') showToast('Оплата (демо): отмена/ошибка', false);
+    }
+
+    function buildPaymentPayload({provider='tinkoff', items=[], total=0, customer={}, redirectUrl=location.pathname + '#payment-success'}){
+      return {
+        provider,
+        total,
+        currency: 'RUB',
+        orderId: 'KIN-' + Date.now(),
+        description: `Kinostore: ${items.length} поз.`,
+        items: items.map(i=>({ name: i.title, price: i.priceDay || i.priceWeek || i.priceMonth || 0, quantity: 1 })),
+        customer,
+        redirectUrl,
+      };
+    }
+
+    async function createInvoice(payload){
+      // Фронтенд-заглушка: отдельное окно с двумя кнопками
+      const success = location.pathname + '#payment-success';
+      const fail = location.pathname + '#payment-fail';
+      const html = `<!doctype html><html lang="ru"><meta charset="utf-8"><title>Demo Checkout · ${payload.provider}</title>
+      <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:#0b0b0c;color:#fff;margin:0}
+      .wrap{max-width:760px;margin:40px auto;padding:24px;border:1px solid #ffffff22;border-radius:16px;background:linear-gradient(180deg,#111,#0b0b0c)}h1{margin:0 0 12px;font-size:22px}
+      .btn{display:inline-block;margin-right:8px;padding:12px 16px;border-radius:12px;text-decoration:none;font-weight:700}
+      .ok{background:linear-gradient(90deg,#34d399,#a3e635);color:#000}.fail{background:#ffffff14;color:#fff}
+      table{width:100%;border-collapse:collapse;margin:12px 0}td,th{padding:8px 6px;border-bottom:1px solid #ffffff16;text-align:left}</style>
+      <body><div class="wrap"><h1>Оплата заказа (демо)</h1>
+      <div>Провайдер: <b>${payload.provider}</b> · Заказ: <b>${payload.orderId}</b></div>
+      <table><thead><tr><th>Позиция</th><th>Цена</th></tr></thead><tbody>
+      ${payload.items.map(i=>`<tr><td>${i.name}</td><td>${i.price} ₽</td></tr>`).join('')}
+      </tbody></table>
+      <div style="margin:10px 0">Итого к оплате: <b>${payload.total} ₽</b></div>
+      <a class="btn ok" href="${success}">Оплатить (успех)</a>
+      <a class="btn fail" href="${fail}">Отмена/ошибка</a>
+      <p style="opacity:.7;margin-top:16px">Это тестовая заглушка. На проде сюда подставится URL платёжной страницы.</p></div></body></html>`;
+      const blob = new Blob([html], {type:'text/html'});
+      return URL.createObjectURL(blob);
+    }
+
+    // ======= Utils =======
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+    // ======= Self tests (console) =======
+    function selfTests(){
+      try{
+        console.group('%cKinostore self-tests','color:#0bf');
+        console.assert(daysBetween('2025-08-01','2025-08-01')===1,'same day => 1');
+        console.assert(daysBetween('2025-08-01','2025-08-03')===3,'3 days');
+        console.assert(rub(1000).includes('₽'),'rub currency symbol');
+        const payload = buildPaymentPayload({items:[{title:'X',priceDay:1}], total:1});
+        console.assert(/^KIN-/.test(payload.orderId),'order id');
+        console.groupEnd();
+      }catch(e){ console.error('Self-tests failed', e); }
+    }
+  </script>
+</body>
+</html>

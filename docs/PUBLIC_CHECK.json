@@ -1,0 +1,72 @@
+{
+  "url": "https://terrifickook.github.io/chatgptrental20250809/",
+  "startedAt": "2026-09-28T18:21:29.801Z",
+  "expectedHead": "1cab58b694c0588e8cf00b29b20e0c5281879be6",
+  "headMarker": null,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "browser": "153.0.8010.12",
+  "status": "passed",
+  "main": {
+    "status": 200,
+    "title": "Kinostore - реквизит для вашего кадра",
+    "listingCount": 48,
+    "overflow": {
+      "viewport": 390,
+      "document": 390,
+      "body": 390
+    }
+  },
+  "deployedAssets": [
+    "/chatgptrental20250809/assets/index-DB1VO3iB.js",
+    "/chatgptrental20250809/assets/index-CyQ-7DvG.css"
+  ],
+  "staticFiles": {
+    "count": 102,
+    "ok200": 102,
+    "imageFiles": 96,
+    "allSha256MatchLocalBuild": true,
+    "failed": [],
+    "mismatches": []
+  },
+  "catalogImages": {
+    "count": 48,
+    "decoded": 48,
+    "uniqueURLs": 48
+  },
+  "directItem": {
+    "url": "https://terrifickook.github.io/chatgptrental20250809/#/items/olive-retro-armchair",
+    "title": "Ретрокресло с деревянными подлокотниками",
+    "reloadStatus": 200,
+    "routePreserved": true,
+    "overflow": {
+      "viewport": 390,
+      "document": 390,
+      "body": 390
+    },
+    "image": {
+      "src": "https://terrifickook.github.io/chatgptrental20250809/images/catalog/olive-retro-armchair.webp",
+      "naturalWidth": 1200,
+      "naturalHeight": 900,
+      "width": 358,
+      "height": 268.5
+    }
+  },
+  "errors": {
+    "pageErrors": [],
+    "consoleErrors": [],
+    "failedResponses": []
+  },
+  "screenshots": [
+    "docs/screenshots/public-catalog-mobile.png",
+    "docs/screenshots/public-item-mobile.png"
+  ],
+  "completedAt": "2026-09-28T18:21:36.390Z",
+  "visualReview": {
+    "catalogMobile": "passed",
+    "itemMobile": "passed",
+    "method": "Both saved screenshots opened and visually inspected. The full-page item capture records the fixed bottom navigation at the original viewport boundary."
+  }
+}

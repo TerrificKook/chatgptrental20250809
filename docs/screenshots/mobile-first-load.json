@@ -1,0 +1,155 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "transferBytes": 323167,
+  "encodedBodyBytes": 314467,
+  "resources": [
+    {
+      "path": "/chatgptrental20250809/",
+      "transferBytes": 883,
+      "encodedBodyBytes": 583
+    },
+    {
+      "path": "/chatgptrental20250809/assets/index-DB1VO3iB.js",
+      "transferBytes": 107675,
+      "encodedBodyBytes": 107375
+    },
+    {
+      "path": "/chatgptrental20250809/assets/index-CyQ-7DvG.css",
+      "transferBytes": 6122,
+      "encodedBodyBytes": 5822
+    },
+    {
+      "path": "/chatgptrental20250809/catalog.json",
+      "transferBytes": 15174,
+      "encodedBodyBytes": 14874
+    },
+    {
+      "path": "/chatgptrental20250809/favicon.svg",
+      "transferBytes": 597,
+      "encodedBodyBytes": 297
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/brass-floor-lamp-thumb.webp",
+      "transferBytes": 2768,
+      "encodedBodyBytes": 2468
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/olive-retro-armchair-thumb.webp",
+      "transferBytes": 9512,
+      "encodedBodyBytes": 9212
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/ceramic-vase-thumb.webp",
+      "transferBytes": 4102,
+      "encodedBodyBytes": 3802
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/tea-service-thumb.webp",
+      "transferBytes": 7610,
+      "encodedBodyBytes": 7310
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/crt-television-thumb.webp",
+      "transferBytes": 7188,
+      "encodedBodyBytes": 6888
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/retro-suitcase-thumb.webp",
+      "transferBytes": 11602,
+      "encodedBodyBytes": 11302
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/small-rug-thumb.webp",
+      "transferBytes": 23532,
+      "encodedBodyBytes": 23232
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/chess-set-thumb.webp",
+      "transferBytes": 15874,
+      "encodedBodyBytes": 15574
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/bankers-lamp-thumb.webp",
+      "transferBytes": 5170,
+      "encodedBodyBytes": 4870
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/wooden-chair-thumb.webp",
+      "transferBytes": 7302,
+      "encodedBodyBytes": 7002
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/bedside-cabinet-thumb.webp",
+      "transferBytes": 6452,
+      "encodedBodyBytes": 6152
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/writing-desk-thumb.webp",
+      "transferBytes": 5594,
+      "encodedBodyBytes": 5294
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/coffee-table-thumb.webp",
+      "transferBytes": 7102,
+      "encodedBodyBytes": 6802
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/candlestick-thumb.webp",
+      "transferBytes": 5714,
+      "encodedBodyBytes": 5414
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/compact-sofa-thumb.webp",
+      "transferBytes": 6978,
+      "encodedBodyBytes": 6678
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/wall-clock-thumb.webp",
+      "transferBytes": 8054,
+      "encodedBodyBytes": 7754
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/wall-mirror-thumb.webp",
+      "transferBytes": 4358,
+      "encodedBodyBytes": 4058
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/kerosene-lamp-thumb.webp",
+      "transferBytes": 6628,
+      "encodedBodyBytes": 6328
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/pendant-light-thumb.webp",
+      "transferBytes": 7482,
+      "encodedBodyBytes": 7182
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/wall-sconce-thumb.webp",
+      "transferBytes": 4238,
+      "encodedBodyBytes": 3938
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/eighties-desk-lamp-thumb.webp",
+      "transferBytes": 3660,
+      "encodedBodyBytes": 3360
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/glass-candy-bowl-thumb.webp",
+      "transferBytes": 13376,
+      "encodedBodyBytes": 13076
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/metal-tray-thumb.webp",
+      "transferBytes": 10256,
+      "encodedBodyBytes": 9956
+    },
+    {
+      "path": "/chatgptrental20250809/images/catalog/glass-set-thumb.webp",
+      "transferBytes": 8164,
+      "encodedBodyBytes": 7864
+    }
+  ]
+}
