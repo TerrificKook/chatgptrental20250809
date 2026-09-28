@@ -15,7 +15,7 @@
 - [x] npm ci, typecheck, lint, 46 unit, seed, build, 14 E2E.
 - [x] Осмотр 360/390/768/1024/1440 с resize; 12 финальных снимков шести экранов.
 - [x] Документация, commit 9407f3a, push и PR #1 без слияния.
-- [ ] Разрешённый Pages-деплой и проверка публичного URL.
+- [x] Разрешённый Pages-деплой и проверка публичного URL: 102/102 HTTP 200, хеши совпадают, мобильная карточка и reload PASS.
 
 ## Решения
 React + TypeScript + Vite, собственный CSS и SVG, hash-маршруты, IndexedDB. Нет внешних шрифтов, платежей, настоящей регистрации и отправки сообщений. Avito не открылся веб-инструментом, Comet заблокирован для этого URL. Использованы присланные скриншоты и описание ТЗ, ограничения не обходились.
@@ -24,12 +24,12 @@ React + TypeScript + Vite, собственный CSS и SVG, hash-маршру�
 /#/, /#/items/:slug, /#/owners/:id, /#/collections/:slug, /#/favorites, /#/selection, /#/share, /#/account/:tab, /#/listing/new, /#/listing/:id/edit, /#/admin/:tab, /#/help.
 
 ## Проверка и исправления
-Растягивание фото вне сетки найдено осмотром screenshots, исправлено height:auto и проверкой пропорций. На телефоне фото, название/цена/действия и описание идут в удобном порядке. После изменений повторены production build, 14/14 E2E и осмотр всех 12 снимков. Первая загрузка: 323167 байт в свежем Chromium production preview. Хеши legacy и всех96 изображений проверены.
+Растягивание фото вне сетки найдено осмотром screenshots, исправлено height:auto и проверкой пропорций. На телефоне фото, название/цена/действия и описание идут в удобном порядке. После изменений повторены production build, 14/14 E2E и осмотр всех 12 снимков. Первая загрузка: 323167 байт в свежем Chromium production preview. Хеши legacy и всех 96 изображений проверены.
 
 ## Публикация
-PR: https://github.com/TerrificKook/chatgptrental20250809/pull/1
-Main не менялся. Публикуется только dist.
-Baseline Pages: build_type legacy, source main /, cname null. Environment github-pages допускает только main. Старый root URL возвращал404. Для разрешения только рабочей ветки и перехода на Actions запрошено отдельное решение владельца; без ответа защита не меняется.
 
-## Разрешение на публикацию
-Пользователь явно разрешил добавить только codex/kinostore-catalog-demo в allowlist github-pages, переключить этот Pages на GitHub Actions и опубликовать проверенный dist. Настройки применены: сохранена main и добавлена точная рабочая ветка; build_type=workflow; CNAME отсутствует, HTTPS включён. Защита не отключалась. Запускается контролируемая публикация.
+[Демо](https://terrifickook.github.io/chatgptrental20250809/) · [PR №1](https://github.com/TerrificKook/chatgptrental20250809/pull/1) · [CI и деплой SUCCESS](https://github.com/TerrificKook/chatgptrental20250809/actions/runs/36464060410)
+
+Исходный Pages: legacy/main/корень, cname null, среда разрешала только main. Владелец явно разрешил добавить только codex/kinostore-catalog-demo в allowlist github-pages, переключить этот Pages на GitHub Actions и опубликовать проверенный dist. Сохранена main и добавлена точная рабочая ветка; build_type=workflow; CNAME отсутствует, HTTPS включён. Защита не отключалась.
+
+Опубликован commit 1cab58b694c0588e8cf00b29b20e0c5281879be6. Main не менялся, PR не слит. Проверены содержимое артефакта (только dist, 102 файла) и реальный публичный сайт: 102 HTTP 200, все SHA-256 совпадают, 48 фото декодированы, прямая карточка и обновление страницы работают. На 390×844 ошибок и переполнения нет. Два публичных снимка открыты и осмотрены. Протокол docs/PUBLIC_CHECK.json; завершено 28.09.2026 18:21:36 UTC. Итоговые отчёты обновлены после проверки.
