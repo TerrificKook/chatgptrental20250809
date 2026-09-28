@@ -30,3 +30,6 @@ React + TypeScript + Vite, собственный CSS и SVG, hash-маршру�
 PR: https://github.com/TerrificKook/chatgptrental20250809/pull/1
 Main не менялся. Публикуется только dist.
 Baseline Pages: build_type legacy, source main /, cname null. Environment github-pages допускает только main. Старый root URL возвращал404. Для разрешения только рабочей ветки и перехода на Actions запрошено отдельное решение владельца; без ответа защита не меняется.
+
+## Разрешение на публикацию
+Пользователь явно разрешил добавить только codex/kinostore-catalog-demo в allowlist github-pages, переключить этот Pages на GitHub Actions и опубликовать проверенный dist. Настройки применены: сохранена main и добавлена точная рабочая ветка; build_type=workflow; CNAME отсутствует, HTTPS включён. Защита не отключалась. Запускается контролируемая публикация.
